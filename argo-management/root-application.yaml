@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: declarative-nginx
+  name: declarative-nginx-dev
   namespace: argocd
 spec:
   project: default
@@ -12,7 +12,33 @@ spec:
 
     helm:
      valueFiles:
-        - values.yaml
+        - values-dev.yaml
+  destination:
+    server: https://kubernetes.default.svc
+     namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+---
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: declarative-nginx-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/newmasterSG/argocd-practice.git
+    targetRevision: HEAD
+    path: my-app
+
+    helm:
+     valueFiles:
+        - values-prod.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default
@@ -20,3 +46,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
